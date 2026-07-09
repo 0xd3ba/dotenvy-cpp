@@ -4,7 +4,7 @@
 #include "dotenvy/dotenvy.hpp"
 
 using dotenvy::DotEnvy;
-using dotenvy::DotEnvError;
+using dotenvy::DotEnvyError;
 
 /* Helper method to load the string representation of an *.env */
 static DotEnvy load_env_from_string(const std::string& contents) {
@@ -127,16 +127,16 @@ TEST_CASE("unterminated ${ is kept literal rather than throwing", "[expansion]")
 /* TEST SUITE - 4
  * Parsing Errors
  */
-TEST_CASE("malformed line throws DotEnvError", "[errors]") {
+TEST_CASE("malformed line throws DotEnvyError", "[errors]") {
     std::istringstream in("GOOD=1\nnot valid\n");
     DotEnvy env{};
-    REQUIRE_THROWS_AS(env.load(in), DotEnvError);
+    REQUIRE_THROWS_AS(env.load(in), DotEnvyError);
 }
 
 TEST_CASE("invalid key names are rejected", "[errors]") {
     std::istringstream in("1BAD=value\n");
     DotEnvy env{};
-    REQUIRE_THROWS_AS(env.load(in), DotEnvError);
+    REQUIRE_THROWS_AS(env.load(in), DotEnvyError);
 }
 
 TEST_CASE("OnError::Skip continues past malformed lines", "[errors]") {
@@ -150,7 +150,7 @@ TEST_CASE("OnError::Skip continues past malformed lines", "[errors]") {
 TEST_CASE("trailing backslash in a quoted value is an error", "[errors]") {
     std::istringstream in("VAR=\"ab\\\"\n");   // VAR="ab\"  (dangling escape)
     DotEnvy env{};
-    REQUIRE_THROWS_AS(env.load(in), DotEnvError);
+    REQUIRE_THROWS_AS(env.load(in), DotEnvyError);
 }
 
 /* TEST SUITE - 5
@@ -180,30 +180,30 @@ TEST_CASE("get<T>() returns nullopt for a missing key, for every T", "[accessors
 }
 
 /* 6.2 - Mismatch of datatype */
-TEST_CASE("get<int>() throws DotEnvError when the value isn't numeric", "[accessors][mismatch]") {
+TEST_CASE("get<int>() throws DotEnvyError when the value isn't numeric", "[accessors][mismatch]") {
     auto env = load_env_from_string("NAME=hello\n");
-    REQUIRE_THROWS_AS(env.get<int>("NAME"), DotEnvError);
+    REQUIRE_THROWS_AS(env.get<int>("NAME"), DotEnvyError);
 }
 
-TEST_CASE("get<double>() throws DotEnvError when the value isn't numeric", "[accessors][mismatch]") {
+TEST_CASE("get<double>() throws DotEnvyError when the value isn't numeric", "[accessors][mismatch]") {
     auto env = load_env_from_string("NAME=hello\n");
-    REQUIRE_THROWS_AS(env.get<double>("NAME"), DotEnvError);
+    REQUIRE_THROWS_AS(env.get<double>("NAME"), DotEnvyError);
 }
 
-TEST_CASE("get<int>() throws DotEnvError on trailing garbage", "[accessors][mismatch]") {
+TEST_CASE("get<int>() throws DotEnvyError on trailing garbage", "[accessors][mismatch]") {
     // "8080abc" doesn't fully consume via from_chars -> ptr != end -> throw.
     auto env = load_env_from_string("PORT=8080abc\n");
-    REQUIRE_THROWS_AS(env.get<int>("PORT"), DotEnvError);
+    REQUIRE_THROWS_AS(env.get<int>("PORT"), DotEnvyError);
 }
 
-TEST_CASE("get<bool>() throws DotEnvError on an unrecognized spelling", "[accessors][mismatch]") {
+TEST_CASE("get<bool>() throws DotEnvyError on an unrecognized spelling", "[accessors][mismatch]") {
     auto env = load_env_from_string("DEBUG=maybe\n");
-    REQUIRE_THROWS_AS(env.get<bool>("DEBUG"), DotEnvError);
+    REQUIRE_THROWS_AS(env.get<bool>("DEBUG"), DotEnvyError);
 }
 
 TEST_CASE("get<T>(key, default) also throws on mismatch rather than silently using the default", "[accessors][mismatch]") {
     auto env = load_env_from_string("PORT=notanumber\n");
-    REQUIRE_THROWS_AS(env.get("PORT", 0), DotEnvError);
+    REQUIRE_THROWS_AS(env.get("PORT", 0), DotEnvyError);
 }
 
 /* 6.3 - Present and valid */

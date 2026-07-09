@@ -11,7 +11,7 @@ int main() {
      */
     try {
         env.load("example.env");
-    } catch (const dotenvy::DotEnvError& e) {
+    } catch (const dotenvy::DotEnvyError& e) {
         std::cerr << "Failed to load example.env: " << e.what() << '\n';
         return 1;
     }
@@ -40,7 +40,7 @@ int main() {
 
     try {
         env.get<int>("APP_NAME");  // present, but not numeric. Throws error.
-    } catch (const dotenvy::DotEnvError& e) {
+    } catch (const dotenvy::DotEnvyError& e) {
         std::cout << "Expected conversion failure: " << e.what() << '\n';
     }
 
