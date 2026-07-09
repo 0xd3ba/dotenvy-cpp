@@ -25,7 +25,7 @@ inline constexpr bool always_false_v = false;
 
 } // namespace
 
-class DotEnvError: public std::runtime_error {
+class DotEnvyError: public std::runtime_error {
 public:
     using std::runtime_error::runtime_error;
 };
@@ -39,7 +39,7 @@ public:
     void load(const std::filesystem::path &path, OnError on_error = OnError::Throw) {
         std::ifstream file{path};
         if(!file)
-            throw DotEnvError{"unable to open the file: " + path.string()};
+            throw DotEnvyError{"unable to open the file: " + path.string()};
 
         load(file, on_error);
     }
@@ -58,7 +58,7 @@ public:
                 if(auto parsed = parse_line(line, line_num)) {
                     values_[parsed->key] = expand_variables(parsed->value);
                 }
-            } catch(const DotEnvError&) {
+            } catch(const DotEnvyError&) {
                 if(on_error == OnError::Throw) throw;
                 // OnError::Skip: silently move on to the next line
             }
@@ -102,7 +102,7 @@ public:
         auto it = values_.find(std::string{key});
         if(it == values_.end())
             return std::nullopt;
-        return convert<T>(it->second);
+        return convert<T>(it->second, key);
     }
 
     template<typename T = std::string>
@@ -144,7 +144,7 @@ private:
 
         auto eq = trimmed.find('=');
         if(eq == std::string::npos)
-            throw DotEnvError{"in line#" + line_str + ", expected KEY=VALUE but got: " + trimmed};
+            throw DotEnvyError{"in line#" + line_str + ", expected KEY=VALUE but got: " + trimmed};
 
         std::string key = trim(trimmed.substr(0, eq));
         std::string raw_val = trim(trimmed.substr(eq+1));
@@ -152,7 +152,7 @@ private:
         // must begin with a letter or an underscore, and rest of the string must contain letters or numbers
         static const std::regex key_pattern(R"(^[A-Za-z_][A-Za-z0-9_]*$)");
         if(!std::regex_match(key, key_pattern))
-            throw DotEnvError{"in line#" + line_str + ", invalid KEY: " + key};
+            throw DotEnvyError{"in line#" + line_str + ", invalid KEY: " + key};
 
         std::string val = unquote_or_strip_comment(raw_val, line_num);
         return ParsedLine{std::move(key), std::move(val)};
@@ -160,7 +160,7 @@ private:
 
     /* Converts a raw stored string into rudimentary type T */
     template<typename T>
-    static T convert(const std::string &raw) {
+    static T convert(const std::string &raw, const std::string_view &key) {
         /* Case-1: string itself */
         if constexpr(std::is_same_v<T, std::string>)
         return raw;
@@ -175,7 +175,7 @@ private:
 
             if(lower == "true" || lower == "1") return true;
             else if(lower == "false" || lower == "0") return false;
-            else throw DotEnvError{"unable to convert to boolean: " + raw};
+            else throw DotEnvyError{"for key=" + std::string{key} + ", unable to convert to boolean: " + raw};
         }
 
         /* Case-3: Is a number */
@@ -186,11 +186,11 @@ private:
             auto [ptr, ec] = std::from_chars(start, end, value);
 
             if(ec == std::errc::invalid_argument)
-                throw DotEnvError{"unable to convert to number: " + raw};
+                throw DotEnvyError{"for key=" + std::string{key} + ", unable to convert to number: " + raw};
             if(ec == std::errc::result_out_of_range)
-                throw DotEnvError{"number out of range: " + raw};
+                throw DotEnvyError{"for key=" + std::string{key} + ", number out of range: " + raw};
             if(ptr != end)
-                throw DotEnvError{"invalid number: " + raw};
+                throw DotEnvyError{"for key=" + std::string{key} + ", invalid number: " + raw};
 
             return value;
         }
@@ -259,7 +259,7 @@ private:
             }
 
             if (i+1 >= s.size())
-                throw DotEnvError("trailing backslash in quoted value for line number " + line_s + ": " + s);
+                throw DotEnvyError("trailing backslash in quoted value for line number " + line_s + ": " + s);
 
             switch (s[++i]) {
                 case 'n':  out.push_back('\n'); break;
@@ -269,7 +269,7 @@ private:
                 case '\\': out.push_back('\\'); break;
                 case '$':  out.push_back('$');  break;
                 default:
-                    throw DotEnvError(std::string("unknown escape sequence '\\") + s[i] + "' in line number " + line_s);
+                    throw DotEnvyError(std::string("unknown escape sequence '\\") + s[i] + "' in line number " + line_s);
             }
         }
 
