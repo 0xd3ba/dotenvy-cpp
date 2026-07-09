@@ -61,7 +61,7 @@ int main() {
 }
 ```
 > [!NOTE]
-> See [`examples/demo.cpp`](examples/demo.cpp) for a complete walkthrough against [`example.env`](examples/example.env).
+> See [`examples/dotenvy_example.cpp`](examples/dotenvy_example.cpp) for a complete walkthrough against [`example.env`](examples/example.env).
 
 ## API
 | Method | What it does |
@@ -91,7 +91,7 @@ int main() {
 
 ## Using DotEnvy in your project
 
-### Option A: copy the header
+### Option A: Copy the Header
 
 `dotenvy.hpp` has no dependencies beyond the standard library. Copy
 [`include/dotenvy/dotenvy.hpp`](include/dotenvy/dotenvy.hpp) into your

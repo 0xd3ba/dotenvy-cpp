@@ -202,15 +202,8 @@ TEST_CASE("get<bool>() throws DotEnvError on an unrecognized spelling", "[access
 }
 
 TEST_CASE("get<T>(key, default) also throws on mismatch rather than silently using the default", "[accessors][mismatch]") {
-    // This is worth calling out explicitly: since get<T>(key, default) is
-    // implemented in terms of get<T>(key), a present-but-invalid value
-    // propagates the exception through the defaulted overload too — the
-    // default only kicks in when the key is *absent*, never when it's
-    // malformed. If that's not the behavior you want, get<T>(key, default)
-    // needs its own try/catch around the mismatch case specifically.
     auto env = load_env_from_string("PORT=notanumber\n");
     REQUIRE_THROWS_AS(env.get("PORT", 0), DotEnvError);
-    // TODO
 }
 
 /* 6.3 - Present and valid */
