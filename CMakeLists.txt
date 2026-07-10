@@ -6,6 +6,9 @@ project(
     LANGUAGES CXX
 )
 
+include(GNUInstallDirs)
+include(CMakePackageConfigHelpers)
+
 option(DOTENVY_BUILD_TESTS "Build unit tests" ${PROJECT_IS_TOP_LEVEL})
 option(DOTENVY_BUILD_EXAMPLES "Build example programs" ${PROJECT_IS_TOP_LEVEL})
 
